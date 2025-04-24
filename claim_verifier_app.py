@@ -1,10 +1,11 @@
 import streamlit as st
-from openai import OpenAI
-import os
+import openai
 
-# Initialize OpenAI client with the API key from Streamlit secrets
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-model = "gpt-4o"
+# Use OpenRouter key from Streamlit secrets
+openai.api_key = st.secrets["OPENROUTER_API_KEY"]
+openai.base_url = "https://openrouter.ai/api/v1"
+
+model = "openai/gpt-4-turbo"  # You can change to another OpenRouter-supported model
 
 st.title("Claim Verification Interface")
 
@@ -74,10 +75,10 @@ Support for Claim X: No direct quote from Section B supports this claim.
 If any of these rules are violated, discard the output and regenerate. If multiple failures happen, stop and ask the user for help.
 """
 
-    user_prompt = f"Section A:\n{section_a}\n\nSection B:\n{section_b}"
+    user_prompt = f"""Section A:\n{section_a}\n\nSection B:\n{section_b}"""
 
     with st.spinner("Verifying claims..."):
-        response = client.chat.completions.create(
+        response = openai.ChatCompletion.create(
             model=model,
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -86,7 +87,7 @@ If any of these rules are violated, discard the output and regenerate. If multip
             temperature=0.0
         )
 
-        result = response.choices[0].message.content
+        result = response["choices"][0]["message"]["content"]
         st.success("Verification complete.")
         st.text_area("Output", value=result, height=500)
 else:
