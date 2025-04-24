@@ -1,10 +1,13 @@
 import streamlit as st
 from openai import OpenAI
 
-# Use OpenRouter key from Streamlit secrets
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+# ✅ Use OpenRouter API key from secrets
+client = OpenAI(
+    api_key=st.secrets["OPENAI_API_KEY"],
+    base_url="https://openrouter.ai/api/v1"
+)
 
-model = "openai/gpt-4-turbo"  # Or another supported model from OpenRouter
+model = "openai/gpt-4-turbo"  # Change to another OpenRouter model if needed
 
 st.title("Claim Verification Interface")
 
@@ -74,7 +77,7 @@ Support for Claim X: No direct quote from Section B supports this claim.
 If any of these rules are violated, discard the output and regenerate. If multiple failures happen, stop and ask the user for help.
 """
 
-    user_prompt = f"""Section A:\n{section_a}\n\nSection B:\n{section_b}"""
+    user_prompt = f"Section A:\n{section_a}\n\nSection B:\n{section_b}"
 
     with st.spinner("Verifying claims..."):
         response = client.chat.completions.create(
