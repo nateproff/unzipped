@@ -1,0 +1,2 @@
+Double-click 'run.bat' to open the app.
+You can now paste content or upload files.
