@@ -1,13 +1,14 @@
 import streamlit as st
 from openai import OpenAI
 
-# ✅ Use OpenRouter API key from secrets
+# ✅ Use OpenRouter key from secrets
 client = OpenAI(
-    api_key=st.secrets["OPENAI_API_KEY"],
+    api_key=st.secrets["OPENROUTER_API_KEY"],
     base_url="https://openrouter.ai/api/v1"
 )
 
-model = "openai/gpt-4-turbo"  # Change to another OpenRouter model if needed
+# ✅ Choose any OpenRouter-supported model
+model = "openai/gpt-4-turbo"  # Try e.g. "anthropic/claude-3-opus" or "mistralai/mixtral-8x7b-instruct"
 
 st.title("Claim Verification Interface")
 
@@ -80,17 +81,19 @@ If any of these rules are violated, discard the output and regenerate. If multip
     user_prompt = f"Section A:\n{section_a}\n\nSection B:\n{section_b}"
 
     with st.spinner("Verifying claims..."):
-        response = client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            temperature=0.0
-        )
-
-        result = response.choices[0].message.content
-        st.success("Verification complete.")
-        st.text_area("Output", value=result, height=500)
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                temperature=0.0
+            )
+            result = response.choices[0].message.content
+            st.success("Verification complete.")
+            st.text_area("Output", value=result, height=500)
+        except Exception as e:
+            st.error(f"Error: {str(e)}")
 else:
     st.info("Please provide both Section A and Section B using paste or upload.")
